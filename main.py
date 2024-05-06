@@ -25,8 +25,6 @@ original_window = driver.current_window_handle
 for card in cards:
 
     # find the title
-    WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located(
-        (By.XPATH, "//div[@data-bi-ct='Product Card']")))
     title = card.get_attribute("data-bi-cn")
 
     # click and open hyperlink in new window
