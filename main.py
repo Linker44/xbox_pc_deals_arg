@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from prettytable import PrettyTable
+import json
 import os
 
 driver = webdriver.Chrome()
@@ -36,7 +37,8 @@ for card in cards:
 
     # click and open hyperlink in new window
     link = card.find_element(By.XPATH, ".//a").get_attribute("href")
-    driver.execute_script("window.open('" + link + "','_blank');")
+    escaped_link = json.dumps(link)
+    driver.execute_script(f"window.open({escaped_link},'_blank');")
     WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
     driver.switch_to.window(driver.window_handles[-1])
 
