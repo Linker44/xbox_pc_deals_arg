@@ -6,20 +6,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from prettytable import PrettyTable
 import os
+
 driver = webdriver.Chrome()
-
 options = webdriver.ChromeOptions()
-
 # skip annoying usb log
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
-
 service = Service(exectuable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service, options=options)
 driver.implicitly_wait(10)
-driver.get("https://www.microsoft.com/es-ar/store/deals/games/pc")
 
 table = PrettyTable()
 table.field_names = ["TITLE", "ORIGINAL PRICE", "DISCOUNT PRICE", "LINK"]
+
+driver.get("https://www.microsoft.com/es-ar/store/deals/games/pc")
 cards = driver.find_elements(By.XPATH, "//div[@data-bi-ct='Product Card']")
 original_window = driver.current_window_handle
 
@@ -46,14 +45,14 @@ for card in cards:
         By.XPATH, "//button[contains(@aria-label, 'Comprar')]")
     price = price_element.get_attribute('aria-label')
 
-    # Extract the original and discount prices from the text"
+    # Extract the original and discount prices from the text
     full_price = price[price.find("Precio original:"):].split(";")
     original_price = full_price[0].split("$")[1]
+    discount_price = "No Discount"
     if len(full_price) == 2:
         discount_price = full_price[1].split("$")[1]
-        table.add_row([title, original_price, discount_price, link])
-    else:
-        table.add_row([title, original_price, "No Discount"])
+    table.add_row([title, original_price, discount_price, link])
+
     os.system('cls' if os.name == 'nt' else 'clear')
     print(table)
 
