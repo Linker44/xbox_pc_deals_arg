@@ -10,3 +10,4 @@ lista en formato tabla: titulo del juego, precio original, precio descuento, lin
 
 ## TO-DO
  - Soporte para paginacion. (por ahora solo lista los juegos de la primer pagina)
+ - acceso paralelo a cada juego para aumentar la velocidad ejecucion

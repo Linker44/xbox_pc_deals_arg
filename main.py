@@ -11,40 +11,49 @@ driver = webdriver.Chrome()
 options = webdriver.ChromeOptions()
 # skip annoying usb log
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
+# disable images for faster load times
+prefs = {"profile.managed_default_content_settings.images": 2}
+
+options.add_experimental_option("prefs", prefs)
 service = Service(exectuable_path="chromedriver.exe")
 driver = webdriver.Chrome(service=service, options=options)
-driver.implicitly_wait(10)
 
 table = PrettyTable()
 table.field_names = ["TITLE", "ORIGINAL PRICE", "DISCOUNT PRICE", "LINK"]
 
-driver.get("https://www.microsoft.com/es-ar/store/deals/games/pc")
-cards = driver.find_elements(By.XPATH, "//div[@data-bi-ct='Product Card']")
+url = "https://www.microsoft.com/es-ar/store/deals/games/pc"
+driver.get(url)
 original_window = driver.current_window_handle
+
+card_xpath = "//div[@data-bi-ct='Product Card']"
+WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((
+    By.XPATH, card_xpath)))
+cards = driver.find_elements(By.XPATH, card_xpath)
 
 for card in cards:
 
-    # find the title
     title = card.get_attribute("data-bi-cn")
 
     # click and open hyperlink in new window
     link = card.find_element(By.XPATH, ".//a").get_attribute("href")
     driver.execute_script("window.open('" + link + "','_blank');")
-    WebDriverWait(driver, 20).until(EC.number_of_windows_to_be(2))
+    WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
     driver.switch_to.window(driver.window_handles[-1])
 
     # get the pricing text
+    buy_button_path = "//button[contains(@aria-label, 'Comprar')]"
     try:
-        WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
-            (By.XPATH, "//button[contains(@aria-label, 'Comprar')]")))
+        WebDriverWait(driver, 10).until(EC.visibility_of_element_located(
+            (By.XPATH, buy_button_path)))
     except:
         continue
     price_element = driver.find_element(
-        By.XPATH, "//button[contains(@aria-label, 'Comprar')]")
+        By.XPATH, buy_button_path)
     price = price_element.get_attribute('aria-label')
 
     # Extract the original and discount prices from the text
-    full_price = price[price.find("Precio original:"):].split(";")
+    price_index = price.find("Precio original:")
+    full_price = price[price_index:].split(";")
     original_price = full_price[0].split("$")[1]
     discount_price = "No Discount"
     if len(full_price) == 2:
